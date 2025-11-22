@@ -1,0 +1,528 @@
+{
+  "info": {
+    "name": "Job Portal API - COMP229",
+    "description": "Complete API collection for the Job Portal MERN application",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"CHANGE_ME_SECURE_PASSWORD\",\n    \"role\": \"jobseeker\",\n    \"phone\": \"+1234567890\",\n    \"location\": \"Toronto, ON\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Register Employer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Jane Smith\",\n    \"email\": \"jane@company.com\",\n    \"password\": \"CHANGE_ME_SECURE_PASSWORD\",\n    \"role\": \"employer\",\n    \"company\": \"Tech Corp Inc.\",\n    \"phone\": \"+1234567890\",\n    \"location\": \"Vancouver, BC\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"john@example.com\",\n    \"password\": \"CHANGE_ME_SECURE_PASSWORD\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "if (pm.response.code === 200) {",
+                    "    const response = pm.response.json();",
+                    "    pm.collectionVariables.set('token', response.data.token);",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"John Doe Updated\",\n    \"phone\": \"+1234567890\",\n    \"location\": \"Toronto, ON\",\n    \"bio\": \"Experienced software developer\",\n    \"skills\": [\"JavaScript\", \"React\", \"Node.js\"],\n    \"resumeLink\": \"https://example.com/resume.pdf\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "Get All Jobs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/jobs?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["jobs"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "developer",
+                  "disabled": true
+                },
+                {
+                  "key": "location",
+                  "value": "Toronto",
+                  "disabled": true
+                },
+                {
+                  "key": "jobType",
+                  "value": "full-time",
+                  "disabled": true
+                },
+                {
+                  "key": "experience",
+                  "value": "mid",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Job",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/jobs/:jobId",
+              "host": ["{{baseUrl}}"],
+              "path": ["jobs", ":jobId"],
+              "variable": [
+                {
+                  "key": "jobId",
+                  "value": "JOB_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Job (Employer)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Senior Software Developer\",\n    \"description\": \"We are looking for an experienced software developer to join our team. You will be responsible for developing and maintaining web applications using modern technologies.\",\n    \"company\": \"Tech Corp Inc.\",\n    \"location\": \"Toronto, ON\",\n    \"jobType\": \"full-time\",\n    \"experience\": \"senior\",\n    \"salary\": {\n        \"min\": 80000,\n        \"max\": 120000\n    },\n    \"requirements\": [\n        \"5+ years of experience in software development\",\n        \"Strong knowledge of JavaScript and Node.js\",\n        \"Experience with React and modern frontend frameworks\",\n        \"Knowledge of database systems (MongoDB, PostgreSQL)\"\n    ],\n    \"benefits\": [\n        \"Competitive salary and benefits\",\n        \"Flexible working arrangements\",\n        \"Professional development opportunities\",\n        \"Health and dental coverage\"\n    ],\n    \"skills\": [\"JavaScript\", \"Node.js\", \"React\", \"MongoDB\", \"PostgreSQL\"],\n    \"applicationDeadline\": \"2024-12-31\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/jobs",
+              "host": ["{{baseUrl}}"],
+              "path": ["jobs"]
+            }
+          }
+        },
+        {
+          "name": "Update Job (Employer)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Senior Software Developer - Updated\",\n    \"description\": \"Updated job description\",\n    \"salary\": {\n        \"min\": 85000,\n        \"max\": 125000\n    }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/jobs/:jobId",
+              "host": ["{{baseUrl}}"],
+              "path": ["jobs", ":jobId"],
+              "variable": [
+                {
+                  "key": "jobId",
+                  "value": "JOB_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Job (Employer)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/jobs/:jobId",
+              "host": ["{{baseUrl}}"],
+              "path": ["jobs", ":jobId"],
+              "variable": [
+                {
+                  "key": "jobId",
+                  "value": "JOB_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Jobs (Employer)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/jobs/employer/my-jobs?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["jobs", "employer", "my-jobs"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "Apply for Job (Job Seeker)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"jobId\": \"JOB_ID_HERE\",\n    \"coverLetter\": \"Dear Hiring Manager, I am very interested in this position and believe my skills and experience make me a perfect fit for your team. I have extensive experience in software development and am excited about the opportunity to contribute to your company.\",\n    \"resumeUrl\": \"https://example.com/my-resume.pdf\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications"]
+            }
+          }
+        },
+        {
+          "name": "Get My Applications (Job Seeker)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/applications/my-applications?page=1&limit=10&status=pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "my-applications"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Job Applications (Employer)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/applications/job/:jobId?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "job", ":jobId"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "jobId",
+                  "value": "JOB_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Application Status (Employer)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"shortlisted\",\n    \"notes\": \"Great candidate, moving forward to interview stage.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/:applicationId",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", ":applicationId"],
+              "variable": [
+                {
+                  "key": "applicationId",
+                  "value": "APPLICATION_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Withdraw Application (Job Seeker)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/applications/:applicationId",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", ":applicationId"],
+              "variable": [
+                {
+                  "key": "applicationId",
+                  "value": "APPLICATION_ID_HERE"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/:userId",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":userId"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USER_ID_HERE"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "API Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
