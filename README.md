@@ -74,8 +74,13 @@ Before running this application, make sure you have:
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
-cd job-portal-mern
+git clone https://github.com/bydursun/COMP229-Group-Project-JobPortal.git
+cd COMP229-Group-Project-JobPortal
+```
+If you forked first, replace the URL above with your fork. To add the original repo as upstream:
+```bash
+git remote add upstream https://github.com/bydursun/COMP229-Group-Project-JobPortal.git
+git fetch upstream
 ```
 
 ### 2. Install Dependencies
