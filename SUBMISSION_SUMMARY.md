@@ -5,16 +5,14 @@ Course: COMP229
 Date: 2025-11-21
 
 ## Team Members & Contribution Log
-Add each member below. After first push, each member should create at least one meaningful commit (feature, fix, doc) to show authorship.
+Each listed member should produce at least one meaningful commit (feature, fix, docs) after the initial import. Student IDs included for submission tracking.
 
-| Member Name | GitHub Handle | Primary Areas | First Commit SHA | Notes |
-|-------------|---------------|---------------|------------------|-------|
-| <Name 1>    | @<handle>     | Backend Auth  |                  |       |
-| <Name 2>    | @<handle>     | Job Features  |                  |       |
-| <Name 3>    | @<handle>     | Frontend UI   |                  |       |
-| <Name 4>    | @<handle>     | Testing/Docs  |                  |       |
+| Member Name       | Student ID | Role               | GitHub Handle | First Commit SHA | Notes |
+|-------------------|-----------:|--------------------|---------------|------------------|-------|
+| Abdullah Dursun   | 301413766  | Backend Developer  | @bydursun     |                  |       |
+| Ebru Kara         | 301219715  | Frontend Developer | @Ebru-K       |                  |       |
 
-> Fill SHA after each member's first merged commit (use `git log --oneline`).
+> Fill SHA after each member's first merged commit (use `git log --oneline`). If GitHub handles differ, update them above.
 
 ## Checklist (Course Requirements)
 
