@@ -455,7 +455,7 @@ This project is for educational purposes as part of COMP229 coursework.
 
 ## 👨‍💻 Author
 
-Built with ❤️ for COMP229 - Web Application Development
+Built by Abdullah Dursun and Ebru Kara for COMP229 - Web Application Development
 
 ---
 
