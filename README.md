@@ -23,7 +23,7 @@ JobFlow Portal bridges talent and opportunity with a full-stack experience: prot
 - ✅ Employer dashboard to post/manage roles and review applicants
 - ✅ Job seeker dashboard to track applications and statuses
 - ✅ Job search with filters, pagination, and detailed views
-- ✅ Responsive, modern UI ready for portfolio screenshots
+- ✅ Responsive, modern UI.
 
 ## Getting Started
 ```bash
@@ -49,8 +49,6 @@ npm run dev
 ## Live Demo
 - 🌐 Deployed URL: _Coming soon_
 
-## Screenshots
-- Add your hero/dashboard captures in `docs/screenshots/` and reference them here (PNG/JPG).
 
 ## What I Learned / Why It Matters
 - Built and integrated a RESTful API with a modern React UI (auth + protected routes).
