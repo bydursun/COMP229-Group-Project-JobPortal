@@ -58,6 +58,30 @@ const Navbar: React.FC = () => {
 
             {user ? (
               <>
+                {user.role === 'employer' && (
+                  <Link
+                    to="/applications/manage"
+                    className={`transition-colors ${
+                      isActive('/applications/manage') 
+                        ? 'text-blue-600 font-semibold' 
+                        : 'text-gray-700 hover:text-blue-600'
+                    }`}
+                  >
+                    Applications
+                  </Link>
+                )}
+                {user.role === 'jobseeker' && (
+                  <Link
+                    to="/applications"
+                    className={`transition-colors ${
+                      isActive('/applications') 
+                        ? 'text-blue-600 font-semibold' 
+                        : 'text-gray-700 hover:text-blue-600'
+                    }`}
+                  >
+                    Applications
+                  </Link>
+                )}
                 <Link
                   to="/dashboard"
                   className={`transition-colors ${
@@ -150,6 +174,18 @@ const Navbar: React.FC = () => {
 
               {user ? (
                 <>
+                  <Link
+                    to={user.role === 'employer' ? '/applications/manage' : '/applications'}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                      isActive(user.role === 'employer' ? '/applications/manage' : '/applications') 
+                        ? 'text-blue-600 bg-blue-50' 
+                        : 'text-gray-700 hover:text-blue-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Dashboard className="h-5 w-5" />
+                    <span>{user.role === 'employer' ? 'Applications' : 'Applications'}</span>
+                  </Link>
                   <Link
                     to="/dashboard"
                     onClick={() => setIsMenuOpen(false)}

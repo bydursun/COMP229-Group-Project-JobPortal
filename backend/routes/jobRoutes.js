@@ -22,6 +22,7 @@ const router = express.Router();
 // Anyone can browse and view job postings
 // ============================================
 router.get('/', getJobs);      // GET /api/jobs - List all jobs (supports pagination, search, filters)
+router.get('/employer/my-jobs', authenticate, authorize('employer'), getMyJobs); // GET /api/jobs/employer/my-jobs - Get employer's jobs
 router.get('/:id', getJob);    // GET /api/jobs/:id - Get single job by ID
 
 // ============================================
@@ -32,6 +33,5 @@ router.get('/:id', getJob);    // GET /api/jobs/:id - Get single job by ID
 router.post('/', authenticate, authorize('employer'), createJob);       // POST /api/jobs - Create new job posting
 router.put('/:id', authenticate, authorize('employer'), updateJob);     // PUT /api/jobs/:id - Update job posting
 router.delete('/:id', authenticate, authorize('employer'), deleteJob);  // DELETE /api/jobs/:id - Delete job posting
-router.get('/employer/my-jobs', authenticate, authorize('employer'), getMyJobs); // GET /api/jobs/employer/my-jobs - Get employer's jobs
 
 export default router;

@@ -5,75 +5,39 @@
 // ============================================
 
 import express from 'express';
-import User from '../models/User.js';
 import { authenticate } from '../middlewares/auth.js';
+import {
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser,
+  permanentlyDeleteUser
+} from '../controllers/userController.js';
 
 const router = express.Router();
 
 // ============================================
-// GET ALL USERS
-// @desc    Retrieve list of all active users (admin/employer functionality)
-// @route   GET /api/users
-// @access  Private (requires authentication)
+// USER CRUD ROUTES
+// All routes require authentication
 // ============================================
-router.get('/', authenticate, async (req, res) => {
-  try {
-    const users = await User.find({ isActive: true })
-      .select('-password')
-      .sort({ createdAt: -1 });
 
-    res.json({
-      success: true,
-      count: users.length,
-      data: { users }
-    });
-  } catch (error) {
-    console.error('Get users error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error fetching users'
-    });
-  }
-});
+// GET /api/users - Get all users with filtering and pagination
+router.get('/', authenticate, getAllUsers);
 
-// ============================================
-// GET SINGLE USER BY ID
-// @desc    Retrieve detailed information about a specific user
-// @route   GET /api/users/:id
-// @access  Private (requires authentication)
-// Useful for viewing other users' profiles (e.g., employer viewing job seeker profile)
-// ============================================
-router.get('/:id', authenticate, async (req, res) => {
-  try {
-    // Find user by ID, exclude password field for security
-    const user = await User.findById(req.params.id).select('-password');
+// GET /api/users/:id - Get single user by ID
+router.get('/:id', authenticate, getUserById);
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
+// POST /api/users - Create new user
+router.post('/', authenticate, createUser);
 
-    res.json({
-      success: true,
-      data: { user }
-    });
-  } catch (error) {
-    console.error('Get user error:', error);
-    
-    if (error.name === 'CastError') {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-    
-    res.status(500).json({
-      success: false,
-      message: 'Server error fetching user'
-    });
-  }
-});
+// PUT /api/users/:id - Update user information
+router.put('/:id', authenticate, updateUser);
+
+// DELETE /api/users/:id - Soft delete user (deactivate account)
+router.delete('/:id', authenticate, deleteUser);
+
+// DELETE /api/users/:id/permanent - Permanently delete user from database
+router.delete('/:id/permanent', authenticate, permanentlyDeleteUser);
 
 export default router;

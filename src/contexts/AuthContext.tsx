@@ -6,6 +6,7 @@ interface User {
   name: string;
   email: string;
   role: 'jobseeker' | 'employer';
+  createdAt?: string;
   company?: string;
   location?: string;
   phone?: string;

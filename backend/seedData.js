@@ -16,29 +16,33 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const seedData = async () => {
   try {
-    // Connect to MongoDB
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log('Connected to MongoDB');
-
-    // Clear existing data (only when seeding demo accounts)
-    if (process.env.SEED_DEMO_ACCOUNTS === 'true') {
-      await User.deleteMany({});
-      await JobPosting.deleteMany({});
-      console.log('Cleared existing data for demo seeding');
-    } else {
-      console.log('SEED_DEMO_ACCOUNTS not enabled; skipping destructive reset and demo user creation');
+    // Validate MongoDB URI presence
+    const uri = process.env.MONGODB_URI;
+    if (!uri || uri.trim().length === 0) {
+      console.error('[SEED][DB] MONGODB_URI is missing. Ensure .env at project root contains MONGODB_URI.');
+      console.error('[SEED][DB] Example: mongodb+srv://<user>:<pass>@<cluster>/<db>?retryWrites=true&w=majority');
+      process.exit(1);
+      return;
     }
 
-    // Environment-driven demo passwords (fallback placeholders)
-    const demoJobSeekerPassword = process.env.DEMO_JOBSEEKER_PASSWORD || 'changeMeJobSeeker!';
-    const demoEmployerPassword = process.env.DEMO_EMPLOYER_PASSWORD || 'changeMeEmployer!';
+    console.log('[SEED][DB] Attempting MongoDB connection for seeding...');
+    const conn = await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 10000,
+      heartbeatFrequencyMS: 10000,
+    });
+    console.log(`[SEED][DB] Connected to MongoDB host: ${conn.connection.host}`);
 
-    // Create sample users (only if enabled)
-    const sampleUsers = process.env.SEED_DEMO_ACCOUNTS === 'true' ? [
+    // Clear existing data
+    await User.deleteMany({});
+    await JobPosting.deleteMany({});
+    console.log('Cleared existing data');
+
+    // Create sample users
+    const sampleUsers = [
       {
         name: 'John Doe',
         email: 'jobseeker@demo.com',
-        password: demoJobSeekerPassword,
+        password: 'password123',
         role: 'jobseeker',
         phone: '+1-416-555-0123',
         location: 'Toronto, ON',
@@ -49,7 +53,7 @@ const seedData = async () => {
       {
         name: 'Sarah Johnson',
         email: 'sarah.johnson@demo.com',
-        password: demoJobSeekerPassword,
+        password: 'password123',
         role: 'jobseeker',
         phone: '+1-647-555-0456',
         location: 'Vancouver, BC',
@@ -60,7 +64,7 @@ const seedData = async () => {
       {
         name: 'Mike Chen',
         email: 'mike.chen@demo.com',
-        password: demoJobSeekerPassword,
+        password: 'password123',
         role: 'jobseeker',
         phone: '+1-604-555-0789',
         location: 'Montreal, QC',
@@ -71,7 +75,7 @@ const seedData = async () => {
       {
         name: 'Emily Rodriguez',
         email: 'employer@demo.com',
-        password: demoEmployerPassword,
+        password: 'password123',
         role: 'employer',
         company: 'TechCorp Solutions',
         phone: '+1-416-555-1000',
@@ -81,7 +85,7 @@ const seedData = async () => {
       {
         name: 'David Kim',
         email: 'david.kim@innovatetech.com',
-        password: demoEmployerPassword,
+        password: 'password123',
         role: 'employer',
         company: 'InnovateTech Inc.',
         phone: '+1-604-555-2000',
@@ -91,33 +95,25 @@ const seedData = async () => {
       {
         name: 'Lisa Thompson',
         email: 'lisa.thompson@designstudio.com',
-        password: demoEmployerPassword,
+        password: 'password123',
         role: 'employer',
         company: 'Creative Design Studio',
         phone: '+1-647-555-3000',
         location: 'Toronto, ON',
         bio: 'Award-winning design agency creating beautiful and functional digital experiences for brands worldwide.'
       }
-    ] : [];
+    ];
 
-    // Create users only if demo seeding enabled
+    // Create users (password will be hashed by pre-save hook)
     const users = [];
-    if (process.env.SEED_DEMO_ACCOUNTS === 'true') {
-      for (const userData of sampleUsers) {
-        const user = await User.create(userData);
-        users.push(user);
-        console.log(`Created user: ${user.name} (${user.role})`);
-      }
+    for (const userData of sampleUsers) {
+      const user = await User.create(userData);
+      users.push(user);
+      console.log(`Created user: ${user.name} (${user.role})`);
     }
 
-    // Get employer users for job creation (skip if none created)
+    // Get employer users for job creation
     const employers = users.filter(user => user.role === 'employer');
-    if (process.env.SEED_DEMO_ACCOUNTS !== 'true') {
-      console.log('Skipping job creation because demo accounts not seeded. Set SEED_DEMO_ACCOUNTS=true to enable.');
-      await mongoose.connection.close();
-      console.log('MongoDB connection closed');
-      return;
-    }
 
     // Create sample job postings
     const sampleJobs = [
@@ -526,18 +522,27 @@ What We Offer:
     console.log('\n✅ Sample data created successfully!');
     console.log(`✅ Seeded ${users.length} users, ${jobDocs.length} jobs, ${sampleApplications.length} applications`);
     console.log('\n📧 Demo Login Credentials:');
-    console.log('Demo credentials (do NOT use in production):');
-    console.log(`Job Seeker: jobseeker@demo.com / ${process.env.DEMO_JOBSEEKER_PASSWORD ? '[HIDDEN ENV VALUE]' : 'changeMeJobSeeker!'}`);
-    console.log(`Employer: employer@demo.com / ${process.env.DEMO_EMPLOYER_PASSWORD ? '[HIDDEN ENV VALUE]' : 'changeMeEmployer!'}`);
+    console.log('Job Seeker: jobseeker@demo.com / password123');
+    console.log('Employer: employer@demo.com / password123');
     console.log('\n🎯 Additional Test Accounts:');
-    console.log('sarah.johnson@demo.com / [USE DEMO_JOBSEEKER_PASSWORD] (Job Seeker)');
-    console.log('mike.chen@demo.com / [USE DEMO_JOBSEEKER_PASSWORD] (Job Seeker)');
-    console.log('david.kim@innovatetech.com / [USE DEMO_EMPLOYER_PASSWORD] (Employer)');
-    console.log('lisa.thompson@designstudio.com / [USE DEMO_EMPLOYER_PASSWORD] (Employer)');
+    console.log('sarah.johnson@demo.com / password123 (Job Seeker)');
+    console.log('mike.chen@demo.com / password123 (Job Seeker)');
+    console.log('david.kim@innovatetech.com / password123 (Employer)');
+    console.log('lisa.thompson@designstudio.com / password123 (Employer)');
 
     process.exit(0);
   } catch (error) {
-    console.error('Error seeding data:', error);
+    console.error('[SEED] Error seeding data:');
+    console.error(`- Name: ${error.name}`);
+    console.error(`- Message: ${error.message}`);
+    if (error.reason && error.reason.type) {
+      console.error(`- Topology Type: ${error.reason.type}`);
+    }
+    console.error('- Tips:');
+    console.error('  1) Verify IP is whitelisted in Atlas (Network Access).');
+    console.error('  2) Confirm username/password and database name in URI.');
+    console.error('  3) Ensure SRV URI starts with mongodb+srv and uses correct cluster.');
+    console.error('  4) Check that your cluster is running and not paused.');
     process.exit(1);
   }
 };

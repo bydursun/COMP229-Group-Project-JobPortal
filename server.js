@@ -9,8 +9,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 
 // ES6 modules don't have __dirname, so we create it manually
 // This is needed for serving static files and path resolution
@@ -45,20 +43,6 @@ app.use(cors({
   credentials: true // Allow cookies and authorization headers
 }));
 
-// Security headers via Helmet
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: 'cross-origin' }
-}));
-
-// Basic rate limiting for all API routes
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
-  standardHeaders: true,
-  legacyHeaders: false
-});
-app.use('/api/', apiLimiter);
-
 // Body Parser Middleware
 // Parse incoming JSON payloads (req.body) for POST/PUT requests
 app.use(express.json());
@@ -74,14 +58,6 @@ app.use((req, res, next) => {
   next(); // Pass control to next middleware
 });
 
-// Optional maintenance mode blocker (set MAINTENANCE_MODE=true in .env)
-app.use((req, res, next) => {
-  if (process.env.MAINTENANCE_MODE === 'true' && !req.originalUrl.startsWith('/api/health')) {
-    return res.status(503).json({ message: 'Service temporarily unavailable - maintenance mode' });
-  }
-  next();
-});
-
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -90,16 +66,37 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Connects to MongoDB Atlas using Mongoose ODM
 // ============================================
 const connectDB = async () => {
+  const uri = process.env.MONGODB_URI;
+  if (!uri || uri.trim().length === 0) {
+    console.error('[DB] MONGODB_URI is missing. Create .env with MONGODB_URI.');
+    console.error('[DB] Example: mongodb+srv://<user>:<pass>@<cluster>/<db>?retryWrites=true&w=majority');
+    process.exit(1);
+    return;
+  }
+
+  console.log(`[DB] Attempting MongoDB connection...`);
+  console.log(`[DB] Target URI present: ${uri.startsWith('mongodb') ? 'Yes' : 'No'}`);
+
   try {
-    // Attempt to connect to MongoDB using connection string from .env
-    // Mongoose handles connection pooling and reconnection automatically
-    const conn = await mongoose.connect(process.env.MONGODB_URI);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    const conn = await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 10000,
+      heartbeatFrequencyMS: 10000,
+    });
+    console.log(`[DB] MongoDB Connected to host: ${conn.connection.host}`);
   } catch (error) {
-    // If connection fails, log error and exit process
-    // This prevents the app from running without a database
-    console.error('Database connection error:', error);
-    process.exit(1); // Exit with failure code
+    console.error('[DB] Database connection error:');
+    // Print common diagnostics to help identify Atlas issues quickly
+    console.error(`- Name: ${error.name}`);
+    console.error(`- Message: ${error.message}`);
+    if (error.reason && error.reason.type) {
+      console.error(`- Topology Type: ${error.reason.type}`);
+    }
+    console.error('- Tips:');
+    console.error('  1) Verify IP is whitelisted in Atlas (Network Access).');
+    console.error('  2) Confirm username/password and database name in URI.');
+    console.error('  3) Ensure SRV URI starts with mongodb+srv and uses correct cluster.');
+    console.error('  4) Check that your cluster is running and not paused.');
+    process.exit(1);
   }
 };
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
@@ -12,6 +11,9 @@ import Jobs from './pages/Jobs';
 import JobDetails from './pages/JobDetails';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
+import ManageJobs from './pages/ManageJobs';
+import MyApplications from './pages/MyApplications';
+import EmployerApplications from './pages/EmployerApplications';
 
 function App() {
   return (
@@ -31,6 +33,30 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/employer/jobs"
+                element={
+                  <ProtectedRoute requiredRole="employer">
+                    <ManageJobs />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/applications"
+                element={
+                  <ProtectedRoute requiredRole="jobseeker">
+                    <MyApplications />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/applications/manage"
+                element={
+                  <ProtectedRoute requiredRole="employer">
+                    <EmployerApplications />
                   </ProtectedRoute>
                 }
               />

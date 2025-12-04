@@ -3,9 +3,9 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { jobAPI, applicationAPI } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { 
-  MapPin, Building, Calendar, DollarSign, Clock, Users, 
-  ArrowLeft, Send, CheckCircle, AlertCircle 
+import {
+  MapPin, Building, Calendar, DollarSign, Clock,
+  ArrowLeft, Send, CheckCircle, AlertCircle
 } from 'lucide-react';
 
 interface Job {
@@ -56,6 +56,18 @@ const JobDetails: React.FC = () => {
     }
   }, [id]);
 
+  useEffect(() => {
+    const checkApplied = async () => {
+      if (!user || user.role !== 'jobseeker' || !id) return;
+      try {
+        const res = await applicationAPI.getMyApplications({ limit: 50 });
+        const apps = res.data?.data?.applications || [];
+        setHasApplied(apps.some((a: any) => a.jobId?._id === id));
+      } catch {}
+    };
+    checkApplied();
+  }, [user, id]);
+
   const fetchJobDetails = async () => {
     try {
       const response = await jobAPI.getJob(id!);
@@ -96,7 +108,9 @@ const JobDetails: React.FC = () => {
       setShowApplicationForm(false);
       alert('Application submitted successfully!');
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to submit application');
+      const msg = err.response?.data?.message || 'Failed to submit application';
+      // Common causes: not authorized role, missing token, duplicate apply, deadline passed
+      alert(msg);
     } finally {
       setApplying(false);
     }
